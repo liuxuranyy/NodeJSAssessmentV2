@@ -11,10 +11,10 @@ const axios = require('axios');
 const StudentController = Express.Router();
 const LOG = new Logger('StudentController.js');
 
-const reportHandler = async (req, res, next) => {
+const studentHandler = async (req, res, next) => {
   let result = {count: 0, students: []};
   try {
-    if (req.query.hasOwnProperty('offset') && req.query.hasOwnProperty('limit')) {
+    if (Object.prototype.hasOwnProperty.call(req.query, 'offset') && !isNaN(req.query.offset) && Object.prototype.hasOwnProperty.call(req.query, 'limit')&& !isNaN(req.query.limit)) {
       const offset = parseInt(req.query.offset);
       const limit = parseInt(req.query.limit);
       let _class = await Class.findOne({where: {code: req.params.classCode}});
@@ -38,8 +38,10 @@ const reportHandler = async (req, res, next) => {
         result.count += externalStudents.count;
         result.students = result.students.concat(externalStudents.students)
       }
+      result.students = result.students.sort((a,b)=>{ return a.name>b.name?1:-1});
       return res.send(result);
     } else {
+      LOG.warn(BAD_REQUEST);
       return res.status(BAD_REQUEST).send(result);
     }
   } catch (err) {
@@ -49,6 +51,6 @@ const reportHandler = async (req, res, next) => {
 
 };
 
-StudentController.get('/class/:classCode/students', reportHandler);
+StudentController.get('/class/:classCode/students', studentHandler);
 
 export default StudentController;

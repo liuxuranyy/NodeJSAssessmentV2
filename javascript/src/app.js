@@ -5,10 +5,11 @@ import bodyParser from 'body-parser';
 import router from './router';
 import globalErrorHandler from './config/globalErrorHandler';
 
+let morgan = require('morgan');
 const App = Express();
-
 App.use(compression());
 App.use(cors());
+App.use(morgan('combined'));
 const db = require('./models');
 // db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
 //   .then(function(){
