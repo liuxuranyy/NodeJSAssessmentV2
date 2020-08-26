@@ -23,6 +23,7 @@ const dataImportHandler = async (req, res, next) => {
     const data = await convertCsvToJson(file.path);
     LOG.info(JSON.stringify(data, null, 2));
     for (const record of data) {
+      //check all mandatory fields, if any field invalid then skip the record
       if (record.teacherEmail !== '' && record.teacherName !== '' && record.studentEmail !== '' && record.studentName !== '' && record.classCode !== '' && record.className !== '' && record.subjectCode !== '' && record.subjectName !== '') {
         let teacher = await saveTeacher(record.teacherEmail,record.teacherName);
         let student = await saveStudent(record.studentEmail,record.studentName);
@@ -57,7 +58,7 @@ const saveTeacher = async (email,name)=>{
   }
   return teacher;
 };
-
+//create or update student table
 const saveStudent = async (email,name)=>{
   let student = await Student.findOne({where: {email: email}});
   if (student == null) {
@@ -71,6 +72,7 @@ const saveStudent = async (email,name)=>{
   }
   return student;
 };
+//create or update class table
 const saveClass = async (code,name)=>{
   let _class = await Class.findOne({where: {code: code}});
   if (_class == null) {
@@ -84,6 +86,7 @@ const saveClass = async (code,name)=>{
   }
   return _class;
 };
+//create or update subject table
 const saveSubject = async (code,name)=>{
   let subject = await Subject.findOne({where: {code: code}});
   if (subject == null) {
@@ -97,6 +100,7 @@ const saveSubject = async (code,name)=>{
   }
   return subject;
 };
+//save junction table for student and class
 const saveStudentClass = async (studentId,classId)=>{
   let studentClass = await StudentClass.findOne({where: {studentId: studentId, classId: classId}});
   if (studentClass == null) {
@@ -104,6 +108,7 @@ const saveStudentClass = async (studentId,classId)=>{
   }
   return studentClass;
 };
+// save junction table for teacher and class
 const saveTeacherClass = async (teacherId,classId)=>{
   let teacherClass = await TeacherClass.findOne({where: {teacherId: teacherId, classId: classId}});
   if (teacherClass == null) {
@@ -111,6 +116,7 @@ const saveTeacherClass = async (teacherId,classId)=>{
   }
   return teacherClass;
 };
+// save junction table for subject and teacher_class junction table
 const saveSubjectTeacherClass = async (subjectId,teacherClassId)=>{
   let subjectTeacherClass = await SubjectTeacherClass.findOne({where: {subjectId: subjectId, teacherClassId: teacherClassId}});
   if (subjectTeacherClass == null) {

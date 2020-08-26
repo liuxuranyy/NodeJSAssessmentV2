@@ -10,6 +10,7 @@ const LOG = new Logger('ClassController.js');
 
 const classHandler = async (req, res, next) => {
   try {
+    //class name is mandatory and cannot be empty string
     if (req.body.className !==undefined && req.body.className !=='') {
       let _class = await Class.findOne({where: {code: req.params.classCode}});
       if (_class !== null) {
@@ -19,7 +20,7 @@ const classHandler = async (req, res, next) => {
       return res.sendStatus(NO_CONTENT);
     } else {
       LOG.warn(BAD_REQUEST);
-      return res.status(BAD_REQUEST);
+      return res.sendStatus(BAD_REQUEST);
     }
   } catch (err) {
     LOG.error(err);

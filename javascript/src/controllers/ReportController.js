@@ -23,6 +23,7 @@ const reportHandler = async (req, res, next) => {
         include: [{model: Teacher}]
       }]
     });
+    //get unique list of teachers who assigned with classes
     let teachers = [...new Set(subjectTeacherClasses.map(item => item.teacher_class.teacher.name))];
     for(const teacher of teachers){
       let workloads = [];

@@ -32,8 +32,13 @@ const studentHandler = async (req, res, next) => {
           return {id: s.student.id, name: s.student.name, email: s.student.email}
         });
       }
-      const externalRes = await axios.get('http://localhost:5000/students?class=' + req.params.classCode + '&offset=' + offset + '&limit=' + limit);
-      if (externalRes.status === 200) {
+      //retrieve external student list
+      const externalRes = await axios.get('http://localhost:5000/students?class=' + req.params.classCode + '&offset=' + offset + '&limit=' + limit).catch((err) => {
+        LOG.error(err);
+        LOG.warn('External student retrieving failed');
+      });
+      //if API call success, concat external student list with internal list
+      if (externalRes!==undefined && externalRes.status === 200) {
         const externalStudents = externalRes.data;
         result.count += externalStudents.count;
         result.students = result.students.concat(externalStudents.students)
@@ -42,9 +47,10 @@ const studentHandler = async (req, res, next) => {
       return res.send(result);
     } else {
       LOG.warn(BAD_REQUEST);
-      return res.status(BAD_REQUEST).send(result);
+      return res.sendStatus(BAD_REQUEST);
     }
   } catch (err) {
+    console.log(err);
     LOG.error(err);
     return next(err);
   }
