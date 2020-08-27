@@ -2,11 +2,9 @@ const supertest = require('supertest');
 const app = require('../app');
 const request = supertest(app);
 const fs = require('fs');
-const util = require('util');
 import {BAD_REQUEST,NO_CONTENT, OK} from 'http-status-codes';
 
-// Convert fs.readFile into Promise version of same
-const readFile = util.promisify(fs.readFile);
+
 describe('Put Endpoints', () => {
   it('test update class name run successfully', async done => {
     const res = await request.put('/api/class/P1-1')
@@ -26,6 +24,7 @@ describe('Put Endpoints', () => {
   }, 30000);
 });
 
+//will fail if external api is not activated
 describe('Get Endpoints', () => {
   it('test student listing api return correctly', async done => {
     let offset = 1;
@@ -48,23 +47,14 @@ describe('Get Endpoints', () => {
   });
 });
 
-//todo check reason of data import testing failed
+//fail due to test csv file path cannot be access
 describe('Post Endpoints', () => {
-  const filePath = `${__dirname}/testFiles/data.sample.csv`;
+  const filePath = 'src\\__test__\\testFiles\\data.sample.csv';
+  const absolutePath =`${__dirname}\\testFiles\\data.sample.csv`;
   it('test data import api', async done => {
-    if(fs.existsSync(filePath)){
-
-      const file = await readFile(filePath);
-      const res = await request.post('/api/upload',file, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Content-Disposition': 'form-data',
-          'filename':'data.sample.csv',
-          'name':'data'
-        }
-      });
+    if(fs.existsSync(absolutePath)){
+      const res = await request.post('/api/upload').attach('file', filePath);
       expect(res.statusCode).toBe(NO_CONTENT);
-
     }else{
       new Error('file does not exist');
     }
